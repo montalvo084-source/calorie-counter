@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Profile {
+  id          Int    @id @default(1)
+  name        String @default("Me")
+  calorieGoal Int    @default(2000)
+  proteinGoal Int    @default(150)
+  fiberGoal   Int    @default(25)
+  waterGoal   Int    @default(8)
+}
+
+model DailyLog {
+  id           Int            @id @default(autoincrement())
+  date         String         @unique
+  note         String?
+  waterGlasses Int            @default(0)
+  entries      CalorieEntry[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model CalorieEntry {
+  id        Int      @id @default(autoincrement())
+  logId     Int
+  log       DailyLog @relation(fields: [logId], references: [id], onDelete: Cascade)
+  sourceKey String
+  quantity  Float    @default(1)
+}
+
+model FoodSource {
+  id        Int     @id @default(autoincrement())
+  key       String  @unique
+  label     String
+  calories  Int
+  protein   Float   @default(0)
+  fiber     Float   @default(0)
+  unit      String  @default("serving")
+  emoji     String  @default("🍽️")
+  active    Boolean @default(true)
+  sortOrder Int     @default(0)
+}

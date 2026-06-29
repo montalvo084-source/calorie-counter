@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-dm-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  --color-bg: #0f0f1e;
+  --color-surface: #1a1a2e;
+  --color-border: #252540;
+  --color-accent: #E8A838;
+  --color-success: #38A89D;
+  --color-danger: #E85D75;
+  --color-purple: #7C6EE7;
+  --color-app-text: #e8e8f0;
+  --color-secondary: #888888;
+  --color-muted: #666666;
+}
+
+html,
+body {
+  background: #0f0f1e;
+  color: #e8e8f0;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.animate-slide-down {
+  animation: slide-down 0.3s ease forwards;
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0.6); opacity: 0; }
+  65%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes float-up {
+  0%   { transform: translateY(0)     scale(1);   opacity: 1; }
+  100% { transform: translateY(-72px) scale(1.5); opacity: 0; }
+}
+
+.animate-float-up {
+  animation: float-up 0.9s ease-out forwards;
+}
+
+@keyframes score-bump {
+  0%   { transform: scale(1);    }
+  40%  { transform: scale(1.25); }
+  100% { transform: scale(1);    }
+}
+
+.animate-score-bump {
+  animation: score-bump 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
