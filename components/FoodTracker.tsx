@@ -140,6 +140,7 @@ export default function FoodTracker({
                 {source.calories} cal
                 {source.protein > 0 && ` · ${source.protein}g protein`}
                 {source.fiber > 0 && ` · ${source.fiber}g fiber`}
+                {source.waterGlasses > 0 && ` · 💧${source.waterGlasses} gl`}
                 {" / "}{source.unit}
               </p>
             </div>

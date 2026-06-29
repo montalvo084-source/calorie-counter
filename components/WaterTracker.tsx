@@ -4,14 +4,16 @@ import ProgressBar from "@/components/ProgressBar";
 
 interface WaterTrackerProps {
   glasses: number;
+  foodGlasses?: number;
   goal: number;
   onChange: (glasses: number) => void;
 }
 
-export default function WaterTracker({ glasses, goal, onChange }: WaterTrackerProps) {
-  const pct = Math.min(100, Math.round((glasses / goal) * 100));
-  const isOver = glasses > goal;
-  const remaining = goal - glasses;
+export default function WaterTracker({ glasses, foodGlasses = 0, goal, onChange }: WaterTrackerProps) {
+  const total = glasses + Math.round(foodGlasses);
+  const pct = Math.min(100, Math.round((total / goal) * 100));
+  const isOver = total > goal;
+  const remaining = goal - total;
 
   return (
     <div className="bg-surface rounded-xl p-4 border border-border flex flex-col gap-3">
@@ -19,7 +21,7 @@ export default function WaterTracker({ glasses, goal, onChange }: WaterTrackerPr
         <span className="text-xs font-semibold uppercase tracking-wide text-secondary">
           💧 Water
         </span>
-        <span className="text-xs text-secondary">{glasses} / {goal} glasses</span>
+        <span className="text-xs text-secondary">{total} / {goal} glasses</span>
       </div>
 
       {/* Glass emoji row */}
@@ -27,19 +29,25 @@ export default function WaterTracker({ glasses, goal, onChange }: WaterTrackerPr
         {Array.from({ length: goal }).map((_, i) => (
           <span
             key={i}
-            className={`text-lg transition-all duration-200 ${i < glasses ? "opacity-100" : "opacity-20"}`}
+            className={`text-lg transition-all duration-200 ${i < total ? "opacity-100" : "opacity-20"}`}
           >
             💧
           </span>
         ))}
-        {glasses > goal && (
+        {total > goal && (
           <span className="text-xs text-danger font-semibold self-center ml-1">
-            +{glasses - goal} extra
+            +{total - goal} extra
           </span>
         )}
       </div>
 
-      <ProgressBar value={glasses} max={goal} />
+      <ProgressBar value={total} max={goal} />
+
+      {foodGlasses > 0 && (
+        <p className="text-[10px] text-muted text-right">
+          {glasses} manual + {Math.round(foodGlasses)} from drinks
+        </p>
+      )}
 
       <p className={`text-xs text-right font-semibold ${isOver ? "text-success" : "text-secondary"}`}>
         {isOver ? "Goal reached! 🎉" : `${remaining} glass${remaining !== 1 ? "es" : ""} to go`}

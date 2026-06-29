@@ -35,14 +35,15 @@ model CalorieEntry {
 }
 
 model FoodSource {
-  id        Int     @id @default(autoincrement())
-  key       String  @unique
-  label     String
-  calories  Int
-  protein   Float   @default(0)
-  fiber     Float   @default(0)
-  unit      String  @default("serving")
-  emoji     String  @default("🍽️")
-  active    Boolean @default(true)
-  sortOrder Int     @default(0)
+  id          Int     @id @default(autoincrement())
+  key         String  @unique
+  label       String
+  calories    Int
+  protein     Float   @default(0)
+  fiber       Float   @default(0)
+  waterGlasses Float  @default(0)
+  unit        String  @default("serving")
+  emoji       String  @default("🍽️")
+  active      Boolean @default(true)
+  sortOrder   Int     @default(0)
 }

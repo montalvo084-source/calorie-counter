@@ -14,6 +14,7 @@ export async function PUT(
       calories: body.calories != null ? Number(body.calories) : undefined,
       protein: body.protein != null ? Number(body.protein) : undefined,
       fiber: body.fiber != null ? Number(body.fiber) : undefined,
+      waterGlasses: body.waterGlasses != null ? Number(body.waterGlasses) : undefined,
       unit: body.unit ?? undefined,
       emoji: body.emoji ?? undefined,
       active: body.active != null ? Boolean(body.active) : undefined,

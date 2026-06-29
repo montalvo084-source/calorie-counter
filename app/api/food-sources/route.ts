@@ -20,6 +20,20 @@ export async function GET() {
       }
       sources = await db.foodSource.findMany({ orderBy: { sortOrder: "asc" } });
     }
+
+    // Patch sources that have no waterGlasses data yet (migration from v2)
+    const needsWaterPatch = sources.some((s) => s.key === "oj" && s.waterGlasses === 0);
+    if (needsWaterPatch) {
+      for (const food of DEFAULT_FOODS) {
+        if (food.waterGlasses > 0) {
+          await db.foodSource.updateMany({
+            where: { key: food.key },
+            data: { waterGlasses: food.waterGlasses },
+          });
+        }
+      }
+      sources = await db.foodSource.findMany({ orderBy: { sortOrder: "asc" } });
+    }
   }
 
   return NextResponse.json(sources);
@@ -39,6 +53,7 @@ export async function POST(request: NextRequest) {
       calories: Number(body.calories),
       protein: body.protein != null ? Number(body.protein) : 0,
       fiber: body.fiber != null ? Number(body.fiber) : 0,
+      waterGlasses: body.waterGlasses != null ? Number(body.waterGlasses) : 0,
       unit: body.unit ?? "serving",
       emoji: body.emoji ?? "🍽️",
       active: body.active ?? true,

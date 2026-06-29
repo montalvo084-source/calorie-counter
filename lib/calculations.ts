@@ -43,10 +43,19 @@ export function calcAvgFiber(logs: DailyLog[], sources: FoodSource[], days = 14)
   return Math.round(recent.reduce((s, l) => s + calcFiberTotal(l.entries, sources), 0) / recent.length);
 }
 
-export function calcAvgWater(logs: DailyLog[], days = 14): number {
+export function calcWaterFromFood(entries: CalorieEntry[], sources: FoodSource[]): number {
+  return entries.reduce((sum, entry) => {
+    const source = sources.find((s) => s.key === entry.sourceKey);
+    return sum + (source ? (source.waterGlasses ?? 0) * entry.quantity : 0);
+  }, 0);
+}
+
+export function calcAvgWater(logs: DailyLog[], sources: FoodSource[], days = 14): number {
   const recent = getRecent(logs, days);
   if (recent.length === 0) return 0;
-  return Math.round(recent.reduce((s, l) => s + (l.waterGlasses ?? 0), 0) / recent.length);
+  return Math.round(
+    recent.reduce((s, l) => s + (l.waterGlasses ?? 0) + calcWaterFromFood(l.entries, sources), 0) / recent.length
+  );
 }
 
 function getRecent(logs: DailyLog[], days: number): DailyLog[] {

@@ -5,6 +5,7 @@ export interface FoodSource {
   calories: number;
   protein: number;
   fiber: number;
+  waterGlasses: number;
   unit: string;
   emoji: string;
   active: boolean;

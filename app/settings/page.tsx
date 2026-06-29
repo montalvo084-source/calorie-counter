@@ -11,11 +11,12 @@ interface EditingFood {
   calories: string;
   protein: string;
   fiber: string;
+  waterGlasses: string;
   unit: string;
   emoji: string;
 }
 
-const BLANK_FOOD: EditingFood = { id: null, label: "", calories: "", protein: "0", fiber: "0", unit: "serving", emoji: "🍽️" };
+const BLANK_FOOD: EditingFood = { id: null, label: "", calories: "", protein: "0", fiber: "0", waterGlasses: "0", unit: "serving", emoji: "🍽️" };
 
 export default function SettingsPage() {
   const { sources, reload } = useFoodSources();
@@ -76,6 +77,7 @@ export default function SettingsPage() {
       calories: Number(editing.calories),
       protein: Number(editing.protein),
       fiber: Number(editing.fiber),
+      waterGlasses: Number(editing.waterGlasses),
       unit: editing.unit,
       emoji: editing.emoji,
     };
@@ -268,6 +270,17 @@ export default function SettingsPage() {
                   className="bg-bg border border-border rounded-lg px-3 py-2 text-sm text-app-text placeholder:text-muted focus:border-accent focus:outline-none"
                 />
               </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] text-muted uppercase tracking-wide">💧 Water (glasses)</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  value={editing.waterGlasses}
+                  onChange={(e) => setEditing({ ...editing, waterGlasses: e.target.value })}
+                  placeholder="0"
+                  className="bg-bg border border-border rounded-lg px-3 py-2 text-sm text-app-text placeholder:text-muted focus:border-accent focus:outline-none"
+                />
+              </div>
             </div>
             <div className="flex gap-2">
               <button
@@ -302,6 +315,7 @@ export default function SettingsPage() {
                   {source.calories} cal
                   {source.protein > 0 && ` · ${source.protein}g pro`}
                   {source.fiber > 0 && ` · ${source.fiber}g fib`}
+                  {source.waterGlasses > 0 && ` · 💧${source.waterGlasses} gl`}
                   {" / "}{source.unit}
                 </p>
               </div>
@@ -322,6 +336,7 @@ export default function SettingsPage() {
                       calories: String(source.calories),
                       protein: String(source.protein),
                       fiber: String(source.fiber),
+                      waterGlasses: String(source.waterGlasses ?? 0),
                       unit: source.unit,
                       emoji: source.emoji,
                     })

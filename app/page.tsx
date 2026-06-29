@@ -9,6 +9,7 @@ import {
   calcCaloriesTotal,
   calcProteinTotal,
   calcFiberTotal,
+  calcWaterFromFood,
   calcStreak,
   todayStr,
   formatDisplayDate,
@@ -45,7 +46,7 @@ export default function Dashboard() {
   const totalCal = todayLog ? calcCaloriesTotal(todayLog.entries, sources) : 0;
   const totalPro = todayLog ? calcProteinTotal(todayLog.entries, sources) : 0;
   const totalFib = todayLog ? calcFiberTotal(todayLog.entries, sources) : 0;
-  const totalWater = todayLog?.waterGlasses ?? 0;
+  const totalWater = (todayLog?.waterGlasses ?? 0) + (todayLog ? calcWaterFromFood(todayLog.entries, sources) : 0);
 
   const streak = calcStreak(logs);
   const avg = calcAvgCalories(logs, sources);

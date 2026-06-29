@@ -7,7 +7,7 @@ import FoodTracker from "@/components/FoodTracker";
 import WaterTracker from "@/components/WaterTracker";
 import { useFoodSources } from "@/lib/food-sources-context";
 import { useToast } from "@/lib/toast-context";
-import { todayStr, formatDisplayDate } from "@/lib/calculations";
+import { todayStr, formatDisplayDate, calcWaterFromFood } from "@/lib/calculations";
 import type { CalorieCounts, DailyLog, Profile } from "@/lib/types";
 
 function LogPageInner() {
@@ -114,6 +114,10 @@ function LogPageInner() {
 
       <WaterTracker
         glasses={waterGlasses}
+        foodGlasses={calcWaterFromFood(
+          Object.entries(counts).filter(([, q]) => q > 0).map(([sourceKey, quantity]) => ({ sourceKey, quantity, id: 0, logId: 0 })),
+          sources
+        )}
         goal={profile?.waterGoal ?? 8}
         onChange={setWaterGlasses}
       />
