@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { DEFAULT_FOODS } from "@/lib/default-foods";
 
+export const revalidate = 0; // Disable caching for this route
+
 export async function GET() {
   let sources = await db.foodSource.findMany({ orderBy: { sortOrder: "asc" } });
 

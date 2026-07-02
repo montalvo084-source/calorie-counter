@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+export const revalidate = 0; // Disable caching for this route
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ date: string }> }

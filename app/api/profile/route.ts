@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+export const revalidate = 0; // Disable caching for this route
+
 export async function GET() {
   const profile = await db.profile.upsert({
     where: { id: 1 },
