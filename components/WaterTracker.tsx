@@ -6,7 +6,7 @@ interface WaterTrackerProps {
   glasses: number;
   foodGlasses?: number;
   goal: number;
-  onChange: (glasses: number) => void;
+  onChange: (glasses: number | ((prev: number) => number)) => void;
 }
 
 export default function WaterTracker({ glasses, foodGlasses = 0, goal, onChange }: WaterTrackerProps) {
@@ -56,7 +56,7 @@ export default function WaterTracker({ glasses, foodGlasses = 0, goal, onChange 
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={() => onChange(Math.max(0, glasses - 1))}
+          onClick={() => onChange((prev) => Math.max(0, prev - 1))}
           disabled={glasses === 0}
           className="w-12 h-12 rounded-xl bg-border text-app-text font-bold disabled:opacity-30 hover:bg-accent/20 transition-colors text-xl flex items-center justify-center"
           aria-label="Remove glass"
@@ -65,7 +65,7 @@ export default function WaterTracker({ glasses, foodGlasses = 0, goal, onChange 
         </button>
         <button
           type="button"
-          onClick={() => onChange(glasses + 1)}
+          onClick={() => onChange((prev) => prev + 1)}
           className="flex-1 h-12 rounded-xl bg-accent text-bg font-bold hover:bg-accent/80 transition-colors text-base flex items-center justify-center gap-2"
           aria-label="Add glass of water"
         >

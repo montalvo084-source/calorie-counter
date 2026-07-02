@@ -12,7 +12,7 @@ import type { CalorieCounts, CalorieEntry } from "@/lib/types";
 
 interface FoodTrackerProps {
   counts: CalorieCounts;
-  onChange: (counts: CalorieCounts) => void;
+  onChange: (counts: CalorieCounts | ((prev: CalorieCounts) => CalorieCounts)) => void;
   calorieGoal: number;
   proteinGoal: number;
   fiberGoal: number;
@@ -81,8 +81,7 @@ export default function FoodTracker({
   const activeMilestone = calMilestone ?? proMilestone ?? fibMilestone;
 
   function adjust(key: string, delta: number) {
-    const current = counts[key] ?? 0;
-    onChange({ ...counts, [key]: Math.max(0, current + delta) });
+    onChange((prev) => ({ ...prev, [key]: Math.max(0, (prev[key] ?? 0) + delta) }));
   }
 
   return (
