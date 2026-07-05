@@ -2,6 +2,7 @@ import type { CalorieEntry, DailyLog, FoodSource } from "./types";
 
 export function calcCaloriesTotal(entries: CalorieEntry[], sources: FoodSource[]): number {
   return entries.reduce((sum, entry) => {
+    if (entry.sourceKey == null) return sum + (entry.calories ?? 0);
     const source = sources.find((s) => s.key === entry.sourceKey);
     return sum + (source ? source.calories * entry.quantity : 0);
   }, 0);
@@ -9,6 +10,7 @@ export function calcCaloriesTotal(entries: CalorieEntry[], sources: FoodSource[]
 
 export function calcProteinTotal(entries: CalorieEntry[], sources: FoodSource[]): number {
   return entries.reduce((sum, entry) => {
+    if (entry.sourceKey == null) return sum + (entry.protein ?? 0);
     const source = sources.find((s) => s.key === entry.sourceKey);
     return sum + (source ? source.protein * entry.quantity : 0);
   }, 0);
@@ -16,6 +18,7 @@ export function calcProteinTotal(entries: CalorieEntry[], sources: FoodSource[])
 
 export function calcFiberTotal(entries: CalorieEntry[], sources: FoodSource[]): number {
   return entries.reduce((sum, entry) => {
+    if (entry.sourceKey == null) return sum + (entry.fiber ?? 0);
     const source = sources.find((s) => s.key === entry.sourceKey);
     return sum + (source ? source.fiber * entry.quantity : 0);
   }, 0);

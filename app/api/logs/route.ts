@@ -3,6 +3,32 @@ import { db } from "@/lib/db";
 
 export const revalidate = 0; // Disable caching for this route
 
+interface RawEntry {
+  sourceKey?: string | null;
+  quantity?: number;
+  label?: string;
+  calories?: number;
+  protein?: number;
+  fiber?: number;
+}
+
+function toEntryCreateData(entries: RawEntry[]) {
+  return entries
+    .filter((e) => (e.sourceKey ? Number(e.quantity) > 0 : Number(e.calories) > 0))
+    .map((e) =>
+      e.sourceKey
+        ? { sourceKey: e.sourceKey, quantity: Number(e.quantity) }
+        : {
+            sourceKey: null,
+            quantity: 1,
+            label: e.label || null,
+            calories: Math.round(Number(e.calories)),
+            protein: e.protein != null ? Number(e.protein) : null,
+            fiber: e.fiber != null ? Number(e.fiber) : null,
+          }
+    );
+}
+
 export async function GET() {
   const logs = await db.dailyLog.findMany({
     include: { entries: true },
@@ -26,12 +52,7 @@ export async function POST(request: NextRequest) {
         note: note ?? null,
         waterGlasses: waterGlasses != null ? Number(waterGlasses) : existing.waterGlasses,
         entries: {
-          create: entries
-            .filter((e: { quantity: number }) => e.quantity > 0)
-            .map((e: { sourceKey: string; quantity: number }) => ({
-              sourceKey: e.sourceKey,
-              quantity: Number(e.quantity),
-            })),
+          create: toEntryCreateData(entries),
         },
       },
       include: { entries: true },
@@ -43,12 +64,7 @@ export async function POST(request: NextRequest) {
         note: note ?? null,
         waterGlasses: waterGlasses != null ? Number(waterGlasses) : 0,
         entries: {
-          create: entries
-            .filter((e: { quantity: number }) => e.quantity > 0)
-            .map((e: { sourceKey: string; quantity: number }) => ({
-              sourceKey: e.sourceKey,
-              quantity: Number(e.quantity),
-            })),
+          create: toEntryCreateData(entries),
         },
       },
       include: { entries: true },

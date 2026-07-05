@@ -30,8 +30,12 @@ model CalorieEntry {
   id        Int      @id @default(autoincrement())
   logId     Int
   log       DailyLog @relation(fields: [logId], references: [id], onDelete: Cascade)
-  sourceKey String
+  sourceKey String?
   quantity  Float    @default(1)
+  label     String?
+  calories  Int?
+  protein   Float?
+  fiber     Float?
 }
 
 model FoodSource {

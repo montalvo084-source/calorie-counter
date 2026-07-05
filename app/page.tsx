@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useFoodSources } from "@/lib/food-sources-context";
+import { useToast } from "@/lib/toast-context";
 import ChartCalories from "@/components/ChartCalories";
+import BottomSheet from "@/components/BottomSheet";
+import QuickAddMeal from "@/components/QuickAddMeal";
 import {
   calcAvgCalories,
   calcCaloriesTotal,
@@ -14,13 +17,15 @@ import {
   todayStr,
   formatDisplayDate,
 } from "@/lib/calculations";
-import type { DailyLog, Profile } from "@/lib/types";
+import type { AdhocDraftEntry, CalorieEntry, DailyLog, Profile } from "@/lib/types";
 
 export default function Dashboard() {
   const { sources, loaded } = useFoodSources();
+  const { showToast } = useToast();
   const [logs, setLogs] = useState<DailyLog[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fetching, setFetching] = useState(true);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -50,6 +55,57 @@ export default function Dashboard() {
 
   const streak = calcStreak(logs);
   const avg = calcAvgCalories(logs, sources);
+
+  const quickEntries: AdhocDraftEntry[] = (todayLog?.entries ?? [])
+    .filter((e) => e.sourceKey == null)
+    .map((e) => ({
+      clientId: String(e.id),
+      id: e.id,
+      label: e.label ?? "",
+      calories: e.calories ?? 0,
+      protein: e.protein ?? 0,
+      fiber: e.fiber ?? 0,
+    }));
+
+  function entryToPayload(e: CalorieEntry) {
+    return e.sourceKey
+      ? { sourceKey: e.sourceKey, quantity: e.quantity }
+      : { sourceKey: null, quantity: 1, label: e.label, calories: e.calories, protein: e.protein, fiber: e.fiber };
+  }
+
+  async function persistToday(nextEntries: ReturnType<typeof entryToPayload>[]) {
+    const res = await fetch("/api/logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        date: today,
+        entries: nextEntries,
+        note: todayLog?.note ?? "",
+        waterGlasses: todayLog?.waterGlasses ?? 0,
+      }),
+    });
+    if (res.ok) {
+      const updated: DailyLog = await res.json();
+      setLogs((prev) => [updated, ...prev.filter((l) => l.date !== today)]);
+    } else {
+      showToast("Something went wrong.", "error");
+    }
+  }
+
+  async function handleQuickAdd(draft: AdhocDraftEntry) {
+    const next = [
+      ...(todayLog?.entries ?? []).map(entryToPayload),
+      { sourceKey: null, quantity: 1, label: draft.label, calories: draft.calories, protein: draft.protein, fiber: draft.fiber },
+    ];
+    await persistToday(next);
+    showToast("Added!", "success");
+  }
+
+  async function handleQuickRemove(clientId: string) {
+    const id = Number(clientId);
+    const next = (todayLog?.entries ?? []).filter((e) => e.id !== id).map(entryToPayload);
+    await persistToday(next);
+  }
 
   const goalCards = [
     {
@@ -162,12 +218,25 @@ export default function Dashboard() {
       </div>
 
       {/* CTA */}
-      <Link
-        href={`/log?date=${today}`}
-        className="w-full bg-accent text-bg font-bold py-4 rounded-xl text-center text-base hover:bg-accent/80 transition-colors"
-      >
-        {todayLog ? "✏️ Update Today" : "📝 Log Today"}
-      </Link>
+      <div className="flex gap-2">
+        <Link
+          href={`/log?date=${today}`}
+          className="flex-1 bg-accent text-bg font-bold py-4 rounded-xl text-center text-base hover:bg-accent/80 transition-colors"
+        >
+          {todayLog ? "✏️ Update Today" : "📝 Log Today"}
+        </Link>
+        <button
+          type="button"
+          onClick={() => setQuickAddOpen(true)}
+          className="flex-1 bg-surface border border-border text-app-text font-bold py-4 rounded-xl text-center text-base hover:bg-border transition-colors"
+        >
+          ⚡ Quick Add
+        </button>
+      </div>
+
+      <BottomSheet open={quickAddOpen} onClose={() => setQuickAddOpen(false)} title="Quick Estimate">
+        <QuickAddMeal entries={quickEntries} onAdd={handleQuickAdd} onRemove={handleQuickRemove} />
+      </BottomSheet>
 
       {/* Chart */}
       <div className="bg-surface rounded-xl p-4 border border-border">

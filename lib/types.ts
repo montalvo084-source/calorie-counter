@@ -15,8 +15,21 @@ export interface FoodSource {
 export interface CalorieEntry {
   id: number;
   logId: number;
-  sourceKey: string;
+  sourceKey: string | null;
   quantity: number;
+  label: string | null;
+  calories: number | null;
+  protein: number | null;
+  fiber: number | null;
+}
+
+export interface AdhocDraftEntry {
+  clientId: string;
+  id?: number;
+  label: string;
+  calories: number;
+  protein: number;
+  fiber: number;
 }
 
 export interface DailyLog {

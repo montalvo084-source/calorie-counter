@@ -52,6 +52,9 @@ export default function LogCard({ log, sources, profile, onDelete }: LogCardProp
           {pro > 0 && <span className="text-xs text-secondary">🥩 {pro}g</span>}
           {fib > 0 && <span className="text-xs text-secondary">🌿 {fib}g</span>}
           {water > 0 && <span className="text-xs text-secondary">💧 {water} gl</span>}
+          {log.entries.some((e) => e.sourceKey == null) && (
+            <span className="text-xs text-secondary">📝 quick</span>
+          )}
           {log.note && (
             <span className="text-xs text-muted italic truncate max-w-[120px]">"{log.note}"</span>
           )}

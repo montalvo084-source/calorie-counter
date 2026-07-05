@@ -5,10 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import FoodTracker from "@/components/FoodTracker";
 import WaterTracker from "@/components/WaterTracker";
+import QuickAddMeal from "@/components/QuickAddMeal";
 import { useFoodSources } from "@/lib/food-sources-context";
 import { useToast } from "@/lib/toast-context";
 import { todayStr, formatDisplayDate, calcWaterFromFood } from "@/lib/calculations";
-import type { CalorieCounts, DailyLog, Profile } from "@/lib/types";
+import type { AdhocDraftEntry, CalorieCounts, DailyLog, Profile } from "@/lib/types";
 
 function LogPageInner() {
   const router = useRouter();
@@ -18,6 +19,7 @@ function LogPageInner() {
   const { showToast } = useToast();
 
   const [counts, setCounts] = useState<CalorieCounts>({});
+  const [adhocEntries, setAdhocEntries] = useState<AdhocDraftEntry[]>([]);
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [note, setNote] = useState("");
   const [existingLog, setExistingLog] = useState<DailyLog | null>(null);
@@ -40,21 +42,52 @@ function LogPageInner() {
         setNote(log.note ?? "");
         setWaterGlasses(log.waterGlasses ?? 0);
         const c: CalorieCounts = {};
+        const adhoc: AdhocDraftEntry[] = [];
         for (const entry of log.entries) {
-          c[entry.sourceKey] = (c[entry.sourceKey] ?? 0) + entry.quantity;
+          if (entry.sourceKey == null) {
+            adhoc.push({
+              clientId: String(entry.id),
+              id: entry.id,
+              label: entry.label ?? "",
+              calories: entry.calories ?? 0,
+              protein: entry.protein ?? 0,
+              fiber: entry.fiber ?? 0,
+            });
+          } else {
+            c[entry.sourceKey] = (c[entry.sourceKey] ?? 0) + entry.quantity;
+          }
         }
         setCounts(c);
+        setAdhocEntries(adhoc);
       }
       setLoaded(true);
     }
     load();
   }, [date]);
 
+  function handleQuickAdd(draft: AdhocDraftEntry) {
+    setAdhocEntries((prev) => [...prev, draft]);
+  }
+
+  function handleQuickRemove(clientId: string) {
+    setAdhocEntries((prev) => prev.filter((e) => e.clientId !== clientId));
+  }
+
   async function handleSave() {
     setSaving(true);
-    const entries = Object.entries(counts)
-      .filter(([, qty]) => qty > 0)
-      .map(([sourceKey, quantity]) => ({ sourceKey, quantity }));
+    const entries = [
+      ...Object.entries(counts)
+        .filter(([, qty]) => qty > 0)
+        .map(([sourceKey, quantity]) => ({ sourceKey, quantity })),
+      ...adhocEntries.map((a) => ({
+        sourceKey: null,
+        quantity: 1,
+        label: a.label,
+        calories: a.calories,
+        protein: a.protein,
+        fiber: a.fiber,
+      })),
+    ];
 
     const res = await fetch("/api/logs", {
       method: "POST",
@@ -110,12 +143,26 @@ function LogPageInner() {
         calorieGoal={profile?.calorieGoal ?? 2000}
         proteinGoal={profile?.proteinGoal ?? 150}
         fiberGoal={profile?.fiberGoal ?? 25}
+        adhocEntries={adhocEntries}
       />
+
+      <QuickAddMeal entries={adhocEntries} onAdd={handleQuickAdd} onRemove={handleQuickRemove} />
 
       <WaterTracker
         glasses={waterGlasses}
         foodGlasses={calcWaterFromFood(
-          Object.entries(counts).filter(([, q]) => q > 0).map(([sourceKey, quantity]) => ({ sourceKey, quantity, id: 0, logId: 0 })),
+          Object.entries(counts)
+            .filter(([, q]) => q > 0)
+            .map(([sourceKey, quantity]) => ({
+              sourceKey,
+              quantity,
+              id: 0,
+              logId: 0,
+              label: null,
+              calories: null,
+              protein: null,
+              fiber: null,
+            })),
           sources
         )}
         goal={profile?.waterGoal ?? 8}

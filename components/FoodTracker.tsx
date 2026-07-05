@@ -8,7 +8,7 @@ import {
   calcProteinTotal,
   calcFiberTotal,
 } from "@/lib/calculations";
-import type { CalorieCounts, CalorieEntry } from "@/lib/types";
+import type { AdhocDraftEntry, CalorieCounts, CalorieEntry } from "@/lib/types";
 
 interface FoodTrackerProps {
   counts: CalorieCounts;
@@ -16,6 +16,7 @@ interface FoodTrackerProps {
   calorieGoal: number;
   proteinGoal: number;
   fiberGoal: number;
+  adhocEntries?: AdhocDraftEntry[];
 }
 
 interface Milestone {
@@ -55,13 +56,29 @@ export default function FoodTracker({
   calorieGoal,
   proteinGoal,
   fiberGoal,
+  adhocEntries = [],
 }: FoodTrackerProps) {
   const { sources: allSources } = useFoodSources();
   const sources = allSources.filter((s) => s.active);
 
-  const entries = Object.entries(counts)
-    .filter(([, q]) => q > 0)
-    .map(([sourceKey, quantity]) => ({ sourceKey, quantity } as CalorieEntry & { id: number; logId: number }));
+  const entries = [
+    ...Object.entries(counts)
+      .filter(([, q]) => q > 0)
+      .map(([sourceKey, quantity]) => ({ sourceKey, quantity } as CalorieEntry & { id: number; logId: number })),
+    ...adhocEntries.map(
+      (a) =>
+        ({
+          id: 0,
+          logId: 0,
+          sourceKey: null,
+          quantity: 1,
+          label: a.label,
+          calories: a.calories,
+          protein: a.protein,
+          fiber: a.fiber,
+        } as CalorieEntry)
+    ),
+  ];
 
   const totalCal = calcCaloriesTotal(entries, sources);
   const totalPro = calcProteinTotal(entries, sources);
