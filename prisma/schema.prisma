@@ -8,22 +8,30 @@ datasource db {
 }
 
 model Profile {
-  id          Int    @id @default(1)
-  name        String @default("Me")
-  calorieGoal Int    @default(2000)
-  proteinGoal Int    @default(150)
-  fiberGoal   Int    @default(25)
-  waterGoal   Int    @default(8)
+  id                  Int    @id @default(1)
+  name                String @default("Me")
+  activeCalorieGoal   Int    @default(2400)
+  inactiveCalorieGoal Int    @default(2000)
+  proteinGoal         Int    @default(150)
+  fiberGoal           Int    @default(25)
+  waterGoal           Int    @default(8)
 }
 
 model DailyLog {
   id           Int            @id @default(autoincrement())
   date         String         @unique
   note         String?
+  isActiveDay  Boolean?
   waterGlasses Int            @default(0)
   entries      CalorieEntry[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  body      String
+  createdAt DateTime @default(now())
 }
 
 model CalorieEntry {

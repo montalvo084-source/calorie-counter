@@ -17,8 +17,9 @@ export default function LogCard({ log, sources, profile, onDelete }: LogCardProp
   const fib = Math.round(calcFiberTotal(log.entries, sources));
   const water = log.waterGlasses ?? 0;
   const isToday = log.date === todayStr();
-  const calPct = Math.round((cal / profile.calorieGoal) * 100);
-  const isOver = cal > profile.calorieGoal;
+  const calorieGoal = log.isActiveDay ? profile.activeCalorieGoal : profile.inactiveCalorieGoal;
+  const calPct = Math.round((cal / calorieGoal) * 100);
+  const isOver = cal > calorieGoal;
 
   return (
     <div className="relative group">
@@ -32,6 +33,11 @@ export default function LogCard({ log, sources, profile, onDelete }: LogCardProp
             {isToday && (
               <span className="text-[10px] font-bold uppercase tracking-wide bg-accent/20 text-accent px-2 py-0.5 rounded-full">
                 Today
+              </span>
+            )}
+            {log.isActiveDay && (
+              <span className="text-[10px] font-bold uppercase tracking-wide bg-success/20 text-success px-2 py-0.5 rounded-full">
+                🏃 Active
               </span>
             )}
           </div>
@@ -48,7 +54,7 @@ export default function LogCard({ log, sources, profile, onDelete }: LogCardProp
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-xs text-secondary">{calPct}% of {profile.calorieGoal} cal</span>
+          <span className="text-xs text-secondary">{calPct}% of {calorieGoal} cal</span>
           {pro > 0 && <span className="text-xs text-secondary">🥩 {pro}g</span>}
           {fib > 0 && <span className="text-xs text-secondary">🌿 {fib}g</span>}
           {water > 0 && <span className="text-xs text-secondary">💧 {water} gl</span>}

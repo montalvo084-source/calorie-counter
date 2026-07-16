@@ -39,7 +39,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { date, entries = [], note, waterGlasses } = body;
+  const { date, entries = [], note, waterGlasses, isActiveDay } = body;
 
   const existing = await db.dailyLog.findUnique({ where: { date } });
 
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
       where: { date },
       data: {
         note: note ?? null,
+        isActiveDay: isActiveDay != null ? Boolean(isActiveDay) : existing.isActiveDay,
         waterGlasses: waterGlasses != null ? Number(waterGlasses) : existing.waterGlasses,
         entries: {
           create: toEntryCreateData(entries),
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
       data: {
         date,
         note: note ?? null,
+        isActiveDay: isActiveDay != null ? Boolean(isActiveDay) : null,
         waterGlasses: waterGlasses != null ? Number(waterGlasses) : 0,
         entries: {
           create: toEntryCreateData(entries),

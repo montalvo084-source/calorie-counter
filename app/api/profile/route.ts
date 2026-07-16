@@ -7,7 +7,7 @@ export async function GET() {
   const profile = await db.profile.upsert({
     where: { id: 1 },
     update: {},
-    create: { id: 1, name: "Me", calorieGoal: 2000, proteinGoal: 150, fiberGoal: 25, waterGoal: 8 },
+    create: { id: 1, name: "Me", activeCalorieGoal: 2400, inactiveCalorieGoal: 2000, proteinGoal: 150, fiberGoal: 25, waterGoal: 8 },
   });
   return NextResponse.json(profile);
 }
@@ -18,7 +18,8 @@ export async function PUT(request: NextRequest) {
     where: { id: 1 },
     update: {
       name: body.name ?? undefined,
-      calorieGoal: body.calorieGoal != null ? Number(body.calorieGoal) : undefined,
+      activeCalorieGoal: body.activeCalorieGoal != null ? Number(body.activeCalorieGoal) : undefined,
+      inactiveCalorieGoal: body.inactiveCalorieGoal != null ? Number(body.inactiveCalorieGoal) : undefined,
       proteinGoal: body.proteinGoal != null ? Number(body.proteinGoal) : undefined,
       fiberGoal: body.fiberGoal != null ? Number(body.fiberGoal) : undefined,
       waterGoal: body.waterGoal != null ? Number(body.waterGoal) : undefined,
@@ -26,7 +27,8 @@ export async function PUT(request: NextRequest) {
     create: {
       id: 1,
       name: body.name ?? "Me",
-      calorieGoal: body.calorieGoal ?? 2000,
+      activeCalorieGoal: body.activeCalorieGoal ?? 2400,
+      inactiveCalorieGoal: body.inactiveCalorieGoal ?? 2000,
       proteinGoal: body.proteinGoal ?? 150,
       fiberGoal: body.fiberGoal ?? 25,
       waterGoal: body.waterGoal ?? 8,

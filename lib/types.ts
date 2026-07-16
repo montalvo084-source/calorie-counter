@@ -36,6 +36,7 @@ export interface DailyLog {
   id: number;
   date: string;
   note: string | null;
+  isActiveDay: boolean | null;
   waterGlasses: number;
   entries: CalorieEntry[];
   createdAt: string;
@@ -45,10 +46,17 @@ export interface DailyLog {
 export interface Profile {
   id: number;
   name: string;
-  calorieGoal: number;
+  activeCalorieGoal: number;
+  inactiveCalorieGoal: number;
   proteinGoal: number;
   fiberGoal: number;
   waterGoal: number;
+}
+
+export interface Note {
+  id: number;
+  body: string;
+  createdAt: string;
 }
 
 export type CalorieCounts = { [key: string]: number };

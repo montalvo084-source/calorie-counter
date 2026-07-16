@@ -24,7 +24,8 @@ export default function SettingsPage() {
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [name, setName] = useState("");
-  const [calorieGoal, setCalorieGoal] = useState("");
+  const [activeCalorieGoal, setActiveCalorieGoal] = useState("");
+  const [inactiveCalorieGoal, setInactiveCalorieGoal] = useState("");
   const [proteinGoal, setProteinGoal] = useState("");
   const [fiberGoal, setFiberGoal] = useState("");
   const [waterGoal, setWaterGoal] = useState("");
@@ -40,7 +41,8 @@ export default function SettingsPage() {
     fetch("/api/profile").then((r) => r.json()).then((p: Profile) => {
       setProfile(p);
       setName(p.name);
-      setCalorieGoal(String(p.calorieGoal));
+      setActiveCalorieGoal(String(p.activeCalorieGoal));
+      setInactiveCalorieGoal(String(p.inactiveCalorieGoal));
       setProteinGoal(String(p.proteinGoal));
       setFiberGoal(String(p.fiberGoal));
       setWaterGoal(String(p.waterGoal));
@@ -54,7 +56,8 @@ export default function SettingsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name,
-        calorieGoal: Number(calorieGoal),
+        activeCalorieGoal: Number(activeCalorieGoal),
+        inactiveCalorieGoal: Number(inactiveCalorieGoal),
         proteinGoal: Number(proteinGoal),
         fiberGoal: Number(fiberGoal),
         waterGoal: Number(waterGoal),
@@ -154,11 +157,20 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-secondary font-semibold">🔥 Calorie Goal</label>
+              <label className="text-xs text-secondary font-semibold">🏃 Active Day Calories</label>
               <input
                 type="number"
-                value={calorieGoal}
-                onChange={(e) => setCalorieGoal(e.target.value)}
+                value={activeCalorieGoal}
+                onChange={(e) => setActiveCalorieGoal(e.target.value)}
+                className="bg-bg border border-border rounded-lg px-3 py-2 text-sm text-app-text focus:border-accent focus:outline-none transition-colors"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-secondary font-semibold">😴 Inactive Day Calories</label>
+              <input
+                type="number"
+                value={inactiveCalorieGoal}
+                onChange={(e) => setInactiveCalorieGoal(e.target.value)}
                 className="bg-bg border border-border rounded-lg px-3 py-2 text-sm text-app-text focus:border-accent focus:outline-none transition-colors"
               />
             </div>

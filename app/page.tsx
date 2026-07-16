@@ -7,8 +7,11 @@ import { useToast } from "@/lib/toast-context";
 import ChartCalories from "@/components/ChartCalories";
 import BottomSheet from "@/components/BottomSheet";
 import QuickAddMeal from "@/components/QuickAddMeal";
+import NotesPanel from "@/components/NotesPanel";
 import {
   calcAvgCalories,
+  calcAvgProtein,
+  calcAvgFiber,
   calcCaloriesTotal,
   calcProteinTotal,
   calcFiberTotal,
@@ -26,6 +29,8 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fetching, setFetching] = useState(true);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -43,7 +48,9 @@ export default function Dashboard() {
   const today = todayStr();
   const todayLog = logs.find((l) => l.date === today);
 
-  const calorieGoal = profile?.calorieGoal ?? 2000;
+  const calorieGoal = todayLog?.isActiveDay
+    ? profile?.activeCalorieGoal ?? 2400
+    : profile?.inactiveCalorieGoal ?? 2000;
   const proteinGoal = profile?.proteinGoal ?? 150;
   const fiberGoal = profile?.fiberGoal ?? 25;
   const waterGoal = profile?.waterGoal ?? 8;
@@ -55,6 +62,11 @@ export default function Dashboard() {
 
   const streak = calcStreak(logs);
   const avg = calcAvgCalories(logs, sources);
+  const avgProtein = calcAvgProtein(logs, sources);
+  const avgFiber = calcAvgFiber(logs, sources);
+  const reportCutoff = new Date();
+  reportCutoff.setDate(reportCutoff.getDate() - 14);
+  const daysLogged = logs.filter((l) => new Date(l.date) >= reportCutoff).length;
 
   const quickEntries: AdhocDraftEntry[] = (todayLog?.entries ?? [])
     .filter((e) => e.sourceKey == null)
@@ -234,8 +246,52 @@ export default function Dashboard() {
         </button>
       </div>
 
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setReportOpen(true)}
+          className="flex-1 bg-surface border border-border text-app-text font-bold py-3 rounded-xl text-center text-sm hover:bg-border transition-colors"
+        >
+          📊 Report
+        </button>
+        <button
+          type="button"
+          onClick={() => setNotesOpen(true)}
+          className="flex-1 bg-surface border border-border text-app-text font-bold py-3 rounded-xl text-center text-sm hover:bg-border transition-colors"
+        >
+          🗒️ Notes
+        </button>
+      </div>
+
       <BottomSheet open={quickAddOpen} onClose={() => setQuickAddOpen(false)} title="Quick Estimate">
         <QuickAddMeal entries={quickEntries} onAdd={handleQuickAdd} onRemove={handleQuickRemove} />
+      </BottomSheet>
+
+      <BottomSheet open={reportOpen} onClose={() => setReportOpen(false)} title="14-Day Report">
+        <div className="flex flex-col gap-2">
+          {[
+            { emoji: "🔥", label: "Avg Calories", value: avg > 0 ? `${avg} cal/day` : "—" },
+            { emoji: "🥩", label: "Avg Protein", value: avgProtein > 0 ? `${avgProtein} g/day` : "—" },
+            { emoji: "🌿", label: "Avg Fiber", value: avgFiber > 0 ? `${avgFiber} g/day` : "—" },
+          ].map((row) => (
+            <div
+              key={row.label}
+              className="flex items-center justify-between bg-bg rounded-xl p-3 border border-border"
+            >
+              <span className="text-sm text-secondary">
+                {row.emoji} {row.label}
+              </span>
+              <span className="text-sm font-bold text-app-text">{row.value}</span>
+            </div>
+          ))}
+          <p className="text-xs text-muted text-center mt-1">
+            Based on {daysLogged} of the last 14 days logged.
+          </p>
+        </div>
+      </BottomSheet>
+
+      <BottomSheet open={notesOpen} onClose={() => setNotesOpen(false)} title="Notes">
+        <NotesPanel />
       </BottomSheet>
 
       {/* Chart */}

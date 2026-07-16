@@ -22,6 +22,7 @@ function LogPageInner() {
   const [adhocEntries, setAdhocEntries] = useState<AdhocDraftEntry[]>([]);
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [note, setNote] = useState("");
+  const [isActiveDay, setIsActiveDay] = useState(false);
   const [existingLog, setExistingLog] = useState<DailyLog | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
@@ -40,6 +41,7 @@ function LogPageInner() {
       if (log) {
         setExistingLog(log);
         setNote(log.note ?? "");
+        setIsActiveDay(log.isActiveDay ?? false);
         setWaterGlasses(log.waterGlasses ?? 0);
         const c: CalorieCounts = {};
         const adhoc: AdhocDraftEntry[] = [];
@@ -92,7 +94,7 @@ function LogPageInner() {
     const res = await fetch("/api/logs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ date, entries, note, waterGlasses }),
+      body: JSON.stringify({ date, entries, note, waterGlasses, isActiveDay }),
     });
 
     if (res.ok) {
@@ -137,10 +139,37 @@ function LogPageInner() {
         </div>
       </div>
 
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setIsActiveDay(false)}
+          className={`flex-1 py-3 rounded-xl text-sm font-bold transition-colors border ${
+            !isActiveDay
+              ? "bg-accent text-bg border-accent"
+              : "bg-surface text-secondary border-border hover:text-app-text"
+          }`}
+        >
+          😴 Inactive Day
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsActiveDay(true)}
+          className={`flex-1 py-3 rounded-xl text-sm font-bold transition-colors border ${
+            isActiveDay
+              ? "bg-accent text-bg border-accent"
+              : "bg-surface text-secondary border-border hover:text-app-text"
+          }`}
+        >
+          🏃 Active Day
+        </button>
+      </div>
+
       <FoodTracker
         counts={counts}
         onChange={setCounts}
-        calorieGoal={profile?.calorieGoal ?? 2000}
+        calorieGoal={
+          isActiveDay ? profile?.activeCalorieGoal ?? 2400 : profile?.inactiveCalorieGoal ?? 2000
+        }
         proteinGoal={profile?.proteinGoal ?? 150}
         fiberGoal={profile?.fiberGoal ?? 25}
         adhocEntries={adhocEntries}
